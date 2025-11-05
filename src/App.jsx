@@ -1,28 +1,58 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
+import HeaderHero from './components/HeaderHero';
+import ToneGrid from './components/ToneGrid';
+import ToneDetail from './components/ToneDetail';
+import FooterCTA from './components/FooterCTA';
 
-function App() {
-  const [count, setCount] = useState(0)
+export default function App() {
+  const [selectedTone, setSelectedTone] = useState(null);
+
+  // Load Roboto Slab dynamically into document head
+  useEffect(() => {
+    const id = 'roboto-slab-font';
+    if (!document.getElementById(id)) {
+      const link = document.createElement('link');
+      link.id = id;
+      link.rel = 'stylesheet';
+      link.href = 'https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@400;600;700&display=swap';
+      document.head.appendChild(link);
+    }
+  }, []);
+
+  const reset = () => setSelectedTone(null);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50 flex items-center justify-center">
-      <div className="bg-white p-8 rounded-lg shadow-lg">
-        <h1 className="text-3xl font-bold text-gray-800 mb-4">
-          Vibe Coding Platform
-        </h1>
-        <p className="text-gray-600 mb-6">
-          Your AI-powered development environment
-        </p>
-        <div className="text-center">
-          <button
-            onClick={() => setCount(count + 1)}
-            className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded"
-          >
-            Count is {count}
-          </button>
-        </div>
-      </div>
-    </div>
-  )
-}
+    <div className="min-h-screen bg-[#0b1b3f]">
+      <HeaderHero onReset={reset} />
 
-export default App
+      <main id="tones" className="relative">
+        <AnimatePresence mode="wait">
+          {!selectedTone ? (
+            <motion.div
+              key="grid"
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -12 }}
+              transition={{ duration: 0.45 }}
+            >
+              <ToneGrid onSelect={setSelectedTone} />
+            </motion.div>
+          ) : (
+            <motion.div
+              key="detail"
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -12 }}
+              transition={{ duration: 0.45 }}
+            >
+              <ToneDetail selected={selectedTone} onBack={reset} />
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </main>
+
+      <FooterCTA />
+    </div>
+  );
+}
